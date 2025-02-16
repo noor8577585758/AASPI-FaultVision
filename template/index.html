@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AASPI FaultVision</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script>
+        function showLoading() {
+            document.getElementById("loadingModal").style.display = "flex";
+        }
+    </script>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .header {
+            background-color: red;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .header-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        .header img {
+            height: 50px;
+        }
+        .plot-container {
+            width: 80%;
+            max-width: 1200px;
+            margin: 20px auto;
+            text-align: center;
+        }
+        .upload-form {
+            margin: 20px auto;
+            text-align: center;
+        }
+        select, input[type="file"], input[type="submit"] {
+            padding: 10px;
+            border-radius: 5px;
+            background-color: white;
+            color: black;
+            margin-top: 10px;
+        }
+        input[type="submit"] {
+            background-color: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .loading-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            font-size: 20px;
+        }
+        .loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-top: 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-title">AASPI FaultVision</div>
+        <img src="{{ url_for('static', filename='aaspi_logo.png') }}" alt="AASPI Logo">
+    </div>
+
+    <div class="upload-form">
+        <form action="/" method="post" enctype="multipart/form-data" onsubmit="showLoading()">
+            <input type="file" name="file" accept=".sgy" required>
+            <select name="plot_selection">
+                <option value="xline" {% if selected_plot == "xline" %}selected{% endif %}>X-line Slice</option>
+                <option value="iline" {% if selected_plot == "iline" %}selected{% endif %}>Inline Slice</option>
+                <option value="time" {% if selected_plot == "time" %}selected{% endif %}>Time Slice</option>
+            </select>
+            <input type="submit" value="Upload & Process">
+        </form>
+    </div>
+
+    <!-- ✅ Loading Modal -->
+    <div id="loadingModal" class="loading-modal">
+        <div>Predicting Faults... Please wait.</div>
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Plot Container (Only the selected plot will be shown) -->
+    {% if plot %}
+        <div class="plot-container">{{ plot | safe }}</div>
+        <h2>Accuracy Metrics</h2>
+        <p><b>Fault Probability Entropy:</b> {{ fault_entropy|round(4) }}</p>
+        <p><b>Fault Probability Variance:</b> {{ fault_variance|round(4) }}</p>
+    {% endif %}
+
+</body>
+</html>
